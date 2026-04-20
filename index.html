@@ -6,120 +6,362 @@
 <title>Lucky Zone</title>
 
 <style>
-body{
-margin:0;
-font-family:Arial;
-background:#050816;
-color:white;
-text-align:center;
-}
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: radial-gradient(circle at top, #0f0f0f, #000);
+    overflow: hidden;
+    color: white;
+  }
 
-/* background glow */
-.orb{
-position:fixed;
-width:300px;
-height:300px;
-border-radius:50%;
-filter:blur(120px);
-opacity:0.5;
-animation:float 8s infinite alternate;
-z-index:-1;
-}
+  canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 0;
+  }
 
-.orb1{background:#3b82f6; top:-50px; left:-50px;}
-.orb2{background:#8b5cf6; bottom:-80px; right:-80px;}
+  /* ===== INTRO ===== */
+  .intro {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    animation: fadeOut 2.2s ease forwards;
+    animation-delay: 2s;
+  }
 
-@keyframes float{
-from{transform:translateY(0);}
-to{transform:translateY(80px);}
-}
+  .jackpot {
+    font-size: 60px;
+    color: #ffcc00;
+    text-shadow: 0 0 20px #ffcc00, 0 0 40px #ff9900;
+    transform: scale(0);
+    animation: pop 1s ease forwards;
+  }
 
-/* header */
-.header{
-padding:70px 20px;
-background:linear-gradient(90deg,#0f172a,#1e3a8a,#0ea5e9);
-}
+  @keyframes pop { to { transform: scale(1); } }
+  @keyframes fadeOut { to { opacity: 0; visibility: hidden; } }
 
-.header h1{
-font-size:34px;
-margin:0;
-}
+  /* ===== HEADER ===== */
+  header {
+    text-align: center;
+    padding: 60px 20px;
+    position: relative;
+    z-index: 3;
+  }
 
-/* container */
-.container{
-max-width:700px;
-margin:auto;
-padding:30px;
-}
+  h1 {
+    font-size: 52px;
+    color: #ffcc00;
+    text-shadow: 0 0 10px #ffcc00, 0 0 30px #ff9900;
+  }
 
-/* card */
-.card{
-background:rgba(255,255,255,0.05);
-padding:25px;
-border-radius:16px;
-margin:20px 0;
-}
+  p { opacity: 0.8; }
 
-/* button */
-.btn{
-display:inline-block;
-margin-top:20px;
-padding:15px 25px;
-background:linear-gradient(90deg,#3b82f6,#8b5cf6);
-color:white;
-text-decoration:none;
-border-radius:12px;
-font-size:16px;
-transition:0.3s;
-}
+  .container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+    position: relative;
+    z-index: 3;
+  }
 
-.btn:hover{
-transform:scale(1.05);
-box-shadow:0 0 20px #3b82f6;
-}
+  .card {
+    width: 260px;
+    padding: 20px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,204,0,0.3);
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 20px rgba(255,204,0,0.2);
+  }
 
-/* footer */
-.footer{
-margin-top:40px;
-font-size:14px;
-opacity:0.7;
-}
+  .card:hover {
+    transform: translateY(-6px) scale(1.05);
+  }
+
+  .btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 25px;
+    background: linear-gradient(90deg, #ffcc00, #ff9900);
+    color: black;
+    font-weight: bold;
+    border-radius: 10px;
+    text-decoration: none;
+    box-shadow: 0 0 20px #ffcc00;
+  }
+
+  /* ===== COMBO ===== */
+  #streak {
+    position: fixed;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%) scale(0.8);
+    padding: 10px 18px;
+    background: rgba(0,0,0,0.6);
+    border: 1px solid #ffcc00;
+    color: #ffcc00;
+    font-weight: bold;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    z-index: 9999;
+    opacity: 0;
+    transition: 0.25s ease;
+    text-shadow: 0 0 10px #ffcc00;
+  }
+
+  #streak.show {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.15);
+  }
+
+  #streak.power {
+    box-shadow: 0 0 20px #ffcc00, 0 0 40px #ff9900;
+    animation: shake 0.25s infinite;
+  }
+
+  @keyframes shake {
+    0% { transform: translateX(-50%) scale(1.15) translateX(0); }
+    25% { transform: translateX(-50%) scale(1.15) translateX(-2px); }
+    50% { transform: translateX(-50%) scale(1.15) translateX(2px); }
+    75% { transform: translateX(-50%) scale(1.15) translateX(-2px); }
+    100% { transform: translateX(-50%) scale(1.15) translateX(0); }
+  }
+
+  /* floating text */
+  .floatText {
+    position: absolute;
+    color: #ffcc00;
+    font-weight: bold;
+    pointer-events: none;
+    animation: floatUp 0.8s ease forwards;
+    text-shadow: 0 0 10px #ffcc00;
+  }
+
+  @keyframes floatUp {
+    0% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-40px); }
+  }
+
 </style>
 </head>
 
 <body>
 
-<div class="orb orb1"></div>
-<div class="orb orb2"></div>
-
-<div class="header">
-<h1>Lucky Zone</h1>
-<p>Secure and simple user platform</p>
+<div class="intro">
+  <div class="jackpot">JACKPOT!</div>
 </div>
+
+<div id="streak">COMBO x1</div>
+
+<canvas id="bg"></canvas>
+<canvas id="fg"></canvas>
+
+<header>
+  <h1>Lucky Zone</h1>
+  <p>Manage & transfer your funds</p>
+
+  <a class="btn"
+  href="https://github.com/TxDevelopers/luckyzone-app/releases/download/v1.0/Lucky.zone.apk">
+  Download App
+  </a>
+</header>
 
 <div class="container">
-
-<div class="card">
-<h2>Download App</h2>
-<p>Access your account and manage your activity easily.</p>
-
-<!-- 🔴 PUT YOUR APK LINK HERE -->
-<a href="https://release-assets.githubusercontent.com/github-production-release-asset/1215539097/c9b598fc-cb58-4121-b945-8657c5e26ce0?sp=r&sv=2018-11-09&sr=b&spr=https&se=2026-04-20T03%3A48%3A46Z&rscd=attachment%3B+filename%3DLucky.zone.apk&rsct=application%2Fvnd.android.package-archive&skoid=96c2d410-5711-43a1-aedd-ab1947aa7ab0&sktid=398a6654-997b-47e9-b12b-9515b896b4de&skt=2026-04-20T02%3A48%3A28Z&ske=2026-04-20T03%3A48%3A46Z&sks=b&skv=2018-11-09&sig=54D1aXm5WWIvLEaUJnCxB1FaQWClhKWH8TL%2BF1btHV8%3D&jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmVsZWFzZS1hc3NldHMuZ2l0aHVidXNlcmNvbnRlbnQuY29tIiwia2V5Ijoia2V5MSIsImV4cCI6MTc3NjY1NTgyOSwibmJmIjoxNzc2NjU0MDI5LCJwYXRoIjoicmVsZWFzZWFzc2V0cHJvZHVjdGlvbi5ibG9iLmNvcmUud2luZG93cy5uZXQifQ.lwqOtLqM47xStyuww9AS2rbQk4y3QH99InQMdDajQsw&response-content-disposition=attachment%3B%20filename%3DLucky.zone.apk&response-content-type=application%2Fvnd.android.package-archive" class="btn">Download Now</a>
+  <div class="card">Fast Transfers</div>
+  <div class="card">Secure System</div>
+  <div class="card">Modern UI</div>
 </div>
 
-<div class="card">
-<h3>Features</h3>
-<p>• Fast login system<br>
-• Secure access<br>
-• Simple interface</p>
-</div>
+<script>
+/* ===== CANVAS ===== */
+const bg = document.getElementById("bg");
+const fg = document.getElementById("fg");
+const bctx = bg.getContext("2d");
+const fctx = fg.getContext("2d");
 
-<div class="footer">
-<a href="privacy.html">Privacy Policy</a> | 
-<a href="terms.html">Terms of Service</a>
-</div>
+bg.width = fg.width = window.innerWidth;
+bg.height = fg.height = window.innerHeight;
 
-</div>
+/* ===== BACKGROUND EFFECTS ===== */
+class Star {
+  constructor(){
+    this.x=Math.random()*bg.width;
+    this.y=Math.random()*bg.height;
+    this.vx=-0.2-Math.random()*0.3;
+    this.size=Math.random()*2;
+  }
+  update(){
+    this.x+=this.vx;
+    if(this.x<0)this.x=bg.width;
+  }
+  draw(){
+    bctx.fillStyle="white";
+    bctx.globalAlpha=0.6;
+    bctx.beginPath();
+    bctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+    bctx.fill();
+  }
+}
+
+class BGCoin {
+  constructor(){
+    this.x=Math.random()*bg.width;
+    this.y=Math.random()*bg.height;
+    this.vx=-0.4-Math.random()*0.3;
+    this.size=2+Math.random()*2;
+  }
+  update(){
+    this.x+=this.vx;
+    if(this.x<0)this.x=bg.width;
+  }
+  draw(){
+    bctx.globalAlpha=0.25;
+    bctx.fillStyle="#ffcc00";
+    bctx.beginPath();
+    bctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+    bctx.fill();
+  }
+}
+
+let stars=[], coinsBG=[];
+for(let i=0;i<80;i++) stars.push(new Star());
+for(let i=0;i<40;i++) coinsBG.push(new BGCoin());
+
+/* ===== FOREGROUND ===== */
+let particles=[];
+let combo=0;
+let lastClick=0;
+
+const streak=document.getElementById("streak");
+
+function floatText(x,y,val){
+  const el=document.createElement("div");
+  el.className="floatText";
+  el.innerText="+"+val;
+  el.style.left=x+"px";
+  el.style.top=y+"px";
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),800);
+}
+
+class Coin{
+  constructor(x,y,strong=false){
+    this.x=x;
+    this.y=y;
+    let a=Math.random()*Math.PI*2;
+    let s=strong?10:5;
+    this.vx=Math.cos(a)*s;
+    this.vy=Math.sin(a)*s;
+    this.size=strong?5:3;
+    this.life=120;
+    this.value=strong?5:1;
+    this.rewarded=false;
+  }
+
+  update(){
+    const rect=document.getElementById("downloadBtn").getBoundingClientRect();
+
+    let dx=(rect.left+rect.width/2)-this.x;
+    let dy=(rect.top+rect.height/2)-this.y;
+
+    this.vx+=dx*0.0008;
+    this.vy+=dy*0.0008;
+
+    this.x+=this.vx;
+    this.y+=this.vy;
+
+    this.vx*=0.92;
+    this.vy*=0.92;
+
+    this.life--;
+
+    if(Math.hypot(dx,dy)<30 && !this.rewarded){
+      floatText(this.x,this.y,this.value);
+      this.rewarded=true;
+    }
+  }
+
+  draw(){
+    fctx.fillStyle="#ffcc00";
+    fctx.shadowBlur=20;
+    fctx.shadowColor="#ffcc00";
+    fctx.beginPath();
+    fctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+    fctx.fill();
+  }
+}
+
+/* ===== LOOP ===== */
+function animate(){
+  bctx.clearRect(0,0,bg.width,bg.height);
+  stars.forEach(s=>{s.update();s.draw();});
+  coinsBG.forEach(c=>{c.update();c.draw();});
+
+  fctx.clearRect(0,0,fg.width,fg.height);
+  particles.forEach((p,i)=>{
+    p.update();
+    p.draw();
+    if(p.life<=0)particles.splice(i,1);
+  });
+
+  requestAnimationFrame(animate);
+}
+animate();
+
+/* ===== COMBO SYSTEM ===== */
+function updateCombo(){
+  streak.style.display="block";
+  streak.innerText="COMBO x"+combo;
+
+  streak.classList.add("show");
+  if(combo>=3) streak.classList.add("power");
+  else streak.classList.remove("power");
+
+  clearTimeout(window.t);
+  window.t=setTimeout(()=>{
+    combo=0;
+    streak.classList.remove("show");
+    streak.classList.remove("power");
+  },1200);
+}
+
+/* ===== EXPLOSION ===== */
+function explode(x,y,strong=false){
+  let count=strong?60:25;
+  for(let i=0;i<count;i++){
+    particles.push(new Coin(x,y,strong));
+  }
+}
+
+/* ===== CLICK ===== */
+function handle(x,y){
+  let now=Date.now();
+  combo=(now-lastClick<400)?combo+1:1;
+  lastClick=now;
+
+  updateCombo();
+  explode(x,y,combo>=3);
+}
+
+window.addEventListener("click",e=>handle(e.clientX,e.clientY));
+window.addEventListener("touchstart",e=>{
+  let t=e.touches[0];
+  handle(t.clientX,t.clientY);
+});
+
+window.addEventListener("resize",()=>{
+  bg.width=fg.width=window.innerWidth;
+  bg.height=fg.height=window.innerHeight;
+});
+</script>
 
 </body>
 </html>
